@@ -16,18 +16,14 @@ var pd = require('pretty-data').pd;
 export class HttpResponseTextDocumentContentProvider extends BaseTextDocumentContentProvider {
     private static cssFilePath: string = path.join(extensions.getExtension(Constants.ExtensionId).extensionPath, Constants.CSSFolderName, Constants.CSSFileName);
 
-    response: HttpResponse;
-    settings: RestClientSettings;
-
-    constructor(response: HttpResponse, settings: RestClientSettings) {
+    public constructor(public response: HttpResponse, public settings: RestClientSettings) {
         super();
-        this.response = response;
-        this.settings = settings;
     }
 
     public provideTextDocumentContent(uri: Uri): string {
         if (this.response) {
             let innerHtml: string;
+            let width = 2;
             let contentType = this.response.getResponseHeaderValue("content-type");
             if (contentType) {
                 contentType = contentType.trim();
@@ -38,28 +34,37 @@ export class HttpResponseTextDocumentContentProvider extends BaseTextDocumentCon
                 let code = `HTTP/${this.response.httpVersion} ${this.response.statusCode} ${this.response.statusMessage}
 ${HttpResponseTextDocumentContentProvider.formatHeaders(this.response.headers)}
 ${HttpResponseTextDocumentContentProvider.formatBody(this.response.body, this.response.getResponseHeaderValue("content-type"))}`;
+                width = (code.split(/\r\n|\r|\n/).length + 1).toString().length;
                 innerHtml = `<pre><code class="http">${codeHighlightLinenums(code, { hljs: hljs, lang: 'http', start: 1 })}</code></pre>`;
             }
             return `
             <head>
                 <link rel="stylesheet" href="${HttpResponseTextDocumentContentProvider.cssFilePath}">
-                ${this.getSettingsOverrideStyles()}
+                ${this.getSettingsOverrideStyles(width)}
             </head>
             <body>
                 <div>
                     ${innerHtml}
+                    <a id="scroll-to-top" role="button" aria-label="scroll to top" onclick="scroll(0,0)"><span class="icon"></span></a>
                 </div>
             </body>`;
         }
     }
 
-    private getSettingsOverrideStyles(): string {
+    private getSettingsOverrideStyles(width: number): string {
         return [
             '<style>',
             'code {',
-            this.settings.fontFamily ? `font-family: ${this.settings.fontFamily}` : '',
+            this.settings.fontFamily ? `font-family: ${this.settings.fontFamily};` : '',
             this.settings.fontSize ? `font-size: ${this.settings.fontSize}px;` : '',
-            this.settings.fontWeight ? `font-weight: ${this.settings.fontWeight}` : '',
+            this.settings.fontWeight ? `font-weight: ${this.settings.fontWeight};` : '',
+            '}',
+            'code .line {',
+            `padding-left: calc(${width}ch + 18px );`,
+            '}',
+            'code .line:before {',
+            `width: ${width}ch;`,
+            `margin-left: calc(-${width}ch + -27px );`,
             '}',
             '</style>'].join('\n');
     }
@@ -69,7 +74,7 @@ ${HttpResponseTextDocumentContentProvider.formatBody(this.response.body, this.re
         for (var header in headers) {
             if (headers.hasOwnProperty(header)) {
                 let value = headers[header];
-                if (typeof headers[header] === 'string') {
+                if (typeof headers[header] !== 'string') {
                     value = <string>headers[header];
                 }
                 headerString += `${header}: ${value}\n`;
@@ -89,6 +94,8 @@ ${HttpResponseTextDocumentContentProvider.formatBody(this.response.body, this.re
                 }
             } else if (type === 'application/xml' || type === 'text/xml') {
                 body = pd.xml(body);
+            } else if (type === 'text/css') {
+                body = pd.css(body);
             }
         }
 

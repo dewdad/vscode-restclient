@@ -13,23 +13,25 @@ export interface IRestClientSettings {
     fontSize?: number;
     fontFamily: string;
     fontWeight: string;
+    environmentVariables: Map<string, Map<string, string>>;
 }
 
 export class RestClientSettings implements IRestClientSettings {
-    followRedirect: boolean;
-    defaultUserAgent: string;
-    timeoutInMilliseconds: number;
-    showResponseInDifferentTab: boolean;
-    proxy: string;
-    proxyStrictSSL: boolean;
-    rememberCookiesForSubsequentRequests: boolean;
-    enableTelemetry: boolean;
-    excludeHostsForProxy: string[];
-    fontSize?: number;
-    fontFamily: string;
-    fontWeight: string;
+    public followRedirect: boolean;
+    public defaultUserAgent: string;
+    public timeoutInMilliseconds: number;
+    public showResponseInDifferentTab: boolean;
+    public proxy: string;
+    public proxyStrictSSL: boolean;
+    public rememberCookiesForSubsequentRequests: boolean;
+    public enableTelemetry: boolean;
+    public excludeHostsForProxy: string[];
+    public fontSize?: number;
+    public fontFamily: string;
+    public fontWeight: string;
+    public environmentVariables: Map<string, Map<string, string>>;
 
-    constructor() {
+    public constructor() {
         workspace.onDidChangeConfiguration(() => {
             this.initializeSettings();
         });
@@ -51,6 +53,8 @@ export class RestClientSettings implements IRestClientSettings {
         this.fontSize = restClientSettings.get<number>("fontSize", null);
         this.fontFamily = restClientSettings.get<string>("fontFamily", null);
         this.fontWeight = restClientSettings.get<string>("fontWeight", null);
+
+        this.environmentVariables = restClientSettings.get<Map<string, Map<string, string>>>("environmentVariables", new Map<string, Map<string, string>>());
 
         let httpSettings = workspace.getConfiguration('http');
         this.proxy = httpSettings.get<string>('proxy', undefined);

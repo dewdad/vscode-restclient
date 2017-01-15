@@ -1,3 +1,23 @@
+## 0.12.0 (2017/1/15)
+* __Feature__: [Support custom environments and variables](https://github.com/Huachao/vscode-restclient/issues/56)
+* __Bug Fix__: [Fix line numbers overlap when response length > 99 lines long](https://github.com/Huachao/vscode-restclient/issues/58)
+* __Improvement__: Add scroll to top icon in response and code generation view
+
+## 0.11.4 (2017/1/4)
+* __Bug Fix__: Fix extension publish issue
+
+## 0.11.3 (2017/1/4)
+* __Bug Fix__: Adds right click menu options to send request and generate code snippet
+* __Improvement__: Add SOAP request snippet to help to build SOAP envelope
+
+## 0.11.2 (2016/12/17)
+* __Bug Fix__: Fix extension publish issue
+
+## 0.11.1 (2016/12/17)
+* __Feature__: [Improve legibility of the text in Response tab](https://github.com/Huachao/vscode-restclient/issues/54)
+* __Bug Fix__: [Parse colon(:) in request header correctly](https://github.com/Huachao/vscode-restclient/issues/55)
+* __Improvement__: Beautify css response
+
 ## 0.11.0 (2016/12/1)
 * __Bug Fix__: [Wrap long strings in preview panel](https://github.com/Huachao/vscode-restclient/issues/24)
 * __Bug Fix__: [Cancel processing request](https://github.com/Huachao/vscode-restclient/issues/48)

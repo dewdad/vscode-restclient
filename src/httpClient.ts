@@ -15,12 +15,12 @@ var iconv = require('iconv-lite');
 export class HttpClient {
     private _settings: RestClientSettings;
 
-    constructor(settings: RestClientSettings) {
+    public constructor(settings: RestClientSettings) {
         this._settings = settings;
-        PersistUtility.createCookieFileIfNotExist();
+        PersistUtility.createFileIfNotExists(PersistUtility.cookieFilePath);
     }
 
-    async send(httpRequest: HttpRequest): Promise<HttpResponse> {
+    public async send(httpRequest: HttpRequest): Promise<HttpResponse> {
         let options: any = {
             url: encodeUrl(httpRequest.url),
             headers: httpRequest.headers,
@@ -103,13 +103,13 @@ export class HttpClient {
                     httpRequest.url,
                     size));
             })
-                .on('data', function (data) {
-                    size += data.length;
-                })
+            .on('data', function (data) {
+                size += data.length;
+            })
         });
     }
 
-    static getHeaderValue(headers: { [key: string]: string }, headerName: string): string {
+    public static getHeaderValue(headers: { [key: string]: string }, headerName: string): string {
         if (headers) {
             for (var key in headers) {
                 if (key.toLowerCase() === headerName.toLowerCase()) {

@@ -31,9 +31,9 @@ export class RequestController {
     private _responseTextProvider: HttpResponseTextDocumentContentProvider;
     private _registration: Disposable;
     private _previewUri: Uri = Uri.parse('rest-response://authority/response-preview');
-    private _interval: any;
+    private _interval: NodeJS.Timer;
 
-    constructor() {
+    public constructor() {
         this._durationStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left);
         this._sizeStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left);
         this._restClientSettings = new RestClientSettings();
@@ -43,7 +43,7 @@ export class RequestController {
         this._registration = workspace.registerTextDocumentContentProvider('rest-response', this._responseTextProvider);
     }
 
-    async run() {
+    public async run() {
         Telemetry.sendEvent('Request');
         let editor = window.activeTextEditor;
         if (!editor || !editor.document) {
@@ -64,7 +64,7 @@ export class RequestController {
         }
 
         // variables replacement
-        selectedText = VariableProcessor.processRawRequest(selectedText);
+        selectedText = await VariableProcessor.processRawRequest(selectedText);
 
         // parse http request
         let httpRequest = new RequestParserFactory().createRequestParser(selectedText).parseHttpRequest(selectedText, editor.document.fileName);
@@ -75,7 +75,7 @@ export class RequestController {
         await this.runCore(httpRequest);
     }
 
-    async rerun() {
+    public async rerun() {
         Telemetry.sendEvent('Rerun Request');
 
         let httpRequest = RequestStore.getLatest();
@@ -86,7 +86,7 @@ export class RequestController {
         await this.runCore(httpRequest);
     }
 
-    async cancel() {
+    public async cancel() {
         Telemetry.sendEvent('Cancel Request');
 
         if (RequestStore.isCompleted()) {
@@ -142,7 +142,7 @@ export class RequestController {
             // persist to history json file
             let serializedRequest = <SerializedHttpRequest>httpRequest;
             serializedRequest.startTime = Date.now();
-            await PersistUtility.save(serializedRequest);
+            await PersistUtility.saveRequest(serializedRequest);
         } catch (error) {
             // check cancel
             if (RequestStore.isCancelled(<string>requestId)) {
@@ -165,7 +165,7 @@ export class RequestController {
         }
     }
 
-    dispose() {
+    public dispose() {
         this._durationStatusBarItem.dispose();
         this._sizeStatusBarItem.dispose();
         this._registration.dispose();

@@ -12,7 +12,7 @@ export class HttpRequestParser implements IRequestParser {
     private static readonly defaultMethod = 'GET';
     private static readonly uploadFromFileSyntax: RegExp = new RegExp('^\<[ \t]+([^ \t]*)[ \t]*$');
 
-    parseHttpRequest(requestRawText: string, requestAbsoluteFilePath: string): HttpRequest {
+    public parseHttpRequest(requestRawText: string, requestAbsoluteFilePath: string): HttpRequest {
         // parse follows http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html
         // split the request raw text into lines
         let lines: string[] = requestRawText.split(EOL);
@@ -95,7 +95,7 @@ export class HttpRequestParser implements IRequestParser {
         return new HttpRequest(requestLine.method, requestLine.url, headers, body);
     }
 
-    private static parseRequestLine(line: string): any {
+    private static parseRequestLine(line: string): { method: string, url: string } {
         // Request-Line = Method SP Request-URI SP HTTP-Version CRLF
         let words = line.split(' ').filter(Boolean);
 
@@ -107,19 +107,17 @@ export class HttpRequestParser implements IRequestParser {
             url = words[0];
         } else {
             // Provides both request method and url
-            method = words[0];
-            url = words[1];
+            [method, url] = words;
         }
 
         return {
-            "method": method,
-            "url": url
+            method: method,
+            url: url
         };
     }
 
     private static skipWhile<T>(items: T[], callbackfn: (value: T, index: number, array: T[]) => boolean): T[] {
-        let index = 0;
-        for (; index < items.length; index++) {
+        for (var index = 0; index < items.length; index++) {
             if (!callbackfn(items[index], index, items)) {
                 break;
             }

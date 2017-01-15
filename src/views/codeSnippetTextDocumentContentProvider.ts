@@ -11,13 +11,8 @@ const codeHighlightLinenums = require('code-highlight-linenums');
 export class CodeSnippetTextDocumentContentProvider extends BaseTextDocumentContentProvider {
     private static cssFilePath: string = path.join(extensions.getExtension(Constants.ExtensionId).extensionPath, Constants.CSSFolderName, Constants.CSSFileName);
 
-    convertResult: string;
-    lang: string;
-
-    constructor(convertResult: string, lang: string) {
+    public constructor(public convertResult: string, public lang: string) {
         super();
-        this.convertResult = convertResult;
-        this.lang = lang;
     }
 
     public provideTextDocumentContent(uri: Uri): string {
@@ -29,6 +24,7 @@ export class CodeSnippetTextDocumentContentProvider extends BaseTextDocumentCont
             <body>
                 <div>
                     <pre><code>${codeHighlightLinenums(this.convertResult, { hljs: hljs, lang: this.getHighlightJsLanguageAlias(), start: 1 })}</code></pre>
+                    <a id="scroll-to-top" role="button" aria-label="scroll to top" onclick="scroll(0,0)"><span class="icon"></span></a>
                 </div>
             </body>`;
         }
